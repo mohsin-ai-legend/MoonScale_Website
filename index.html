@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>moonScale — We scale ecommerce brands to millions</title>
+    <meta name="description" content="moonScale scaled Resilia from $2M a month to $2M a day. Paid ads, AI-powered creative from our own in-house tool, retention and conversion, run as one system. Book a free 30-minute growth audit." />
+    <script>
+      // Runs before first paint. "js" switches on states that need a script. "motion" is added only
+      // when the visitor has not asked for reduced motion. If the animation code never arrives
+      // (blocked CDN, script error), the timer drops "motion" and the page shows its finished state.
+      (function (root) {
+        root.classList.add('js');
+        var still = /[?&]still=1(&|$)/.test(location.search); // add ?still=1 to see the page with motion off
+        if (!still && window.matchMedia && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          root.classList.add('motion');
+          setTimeout(function () {
+            if (!window.__msReady) root.classList.remove('motion');
+          }, 5000);
+        }
+      })(document.documentElement);
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <!-- Lets the page run without a build step. Under Vite, the npm packages are used instead. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.15.1/+esm",
+          "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.15.1/ScrollTrigger/+esm",
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js"
+        }
+      }
+    </script>
+    <script>
+      // Start fetching the animation libraries straight away, but only for visitors who will use them.
+      (function (root) {
+        if (!root.classList.contains('motion')) return;
+        var urls = [
+          'https://cdn.jsdelivr.net/npm/gsap@3.15.1/+esm',
+          'https://cdn.jsdelivr.net/npm/gsap@3.15.1/ScrollTrigger/+esm'
+        ];
+        var lowEnd = (navigator.connection && navigator.connection.saveData) || navigator.deviceMemory <= 2;
+        if (!lowEnd) urls.push('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js');
+        urls.forEach(function (href) {
+          var link = document.createElement('link');
+          link.rel = 'modulepreload';
+          link.href = href;
+          document.head.appendChild(link);
+        });
+      })(document.documentElement);
+    </script>
+  </head>
+  <body>
+    <header class="nav" data-nav>
+      <div class="wrap nav-inner">
+        <a class="wordmark" href="#top">moon<span>Scale</span></a>
+        <a class="button button-small" href="#book" data-booking-link data-cta="nav">Book your free audit</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- Hero: the promise and the button never move. The scale object beside them does. -->
+      <section class="hero">
+        <div class="wrap hero-inner">
+          <div class="hero-copy">
+            <div class="hero-text">
+              <h1>We scale <span class="nb">ecommerce brands</span> <span class="nb">to millions.</span></h1>
+              <p class="lede">
+                Paid ads, AI-powered creative from our own in-house tool, retention and conversion,
+                run by one team as one system. Spend only goes where it stays profitable.
+              </p>
+              <a class="button" href="#book" data-booking-link data-inflow data-cta="hero">Book your free growth audit</a>
+              <p class="microcopy">30 minutes with a senior strategist. You keep the plan either way.</p>
+            </div>
+            <div class="proof">
+              <p class="proof-stat"><strong>Resilia:</strong> from <b>$2M a month</b> to <b>$2M a day</b>.</p>
+              <ul class="logos" aria-label="Brands we have scaled">
+                <li><img src="/assets/logos/resilia.png" alt="Resilia" width="116" height="22" /></li>
+                <li><img src="/assets/logos/happy-mammoth.png" alt="Happy Mammoth" width="40" height="40" /></li>
+                <li class="logo-text">Mushi</li>
+                <li class="logo-text">GleefulBrands</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- The scale: one blue cube is a $10K month. Times ten, three times, is $10M. -->
+          <figure
+            class="stage"
+            role="img"
+            aria-label="Illustration: one blue cube, standing for $10K in monthly revenue, multiplies into a row of ten, a floor of one hundred and a block of one thousand, standing for $10M a month."
+          >
+            <div class="stage-view">
+              <svg class="stage-poster" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <ellipse cx="50.51" cy="75.14" rx="39.93" ry="15.05" fill="#081236" opacity="0.07"/>
+              <polygon points="47.86,41.69 90.87,25.94 52.14,8.44 9.13,24.19" fill="#ffffff"/>
+              <polygon points="47.86,94.56 90.87,78.81 90.87,25.94 47.86,41.69" fill="#f3f4f6"/>
+              <polygon points="47.86,94.56 9.13,77.06 9.13,24.19 47.86,41.69" fill="#e6e8ec"/>
+              <path d="M47.86 41.69 L9.13 24.19 M47.86 41.69 L90.87 25.94 M47.86 94.56 L47.86 41.69 M47.86 94.56 L90.87 78.81 M47.86 94.56 L47.86 41.69 M47.86 94.56 L9.13 77.06 M52.16 40.11 L13.44 22.62 M43.99 39.94 L86.99 24.19 M52.16 92.98 L52.16 40.11 M47.86 89.27 L90.87 73.52 M43.99 92.81 L43.99 39.94 M47.86 89.27 L9.13 71.78 M56.46 38.54 L17.74 21.04 M40.11 38.19 L83.12 22.44 M56.46 91.41 L56.46 38.54 M47.86 83.98 L90.87 68.23 M40.11 91.06 L40.11 38.19 M47.86 83.98 L9.13 66.49 M60.76 36.96 L22.04 19.47 M36.24 36.44 L79.25 20.69 M60.76 89.83 L60.76 36.96 M47.86 78.69 L90.87 62.94 M36.24 89.31 L36.24 36.44 M47.86 78.69 L9.13 61.20 M65.06 35.39 L26.34 17.89 M32.37 34.69 L75.38 18.94 M65.06 88.26 L65.06 35.39 M47.86 73.41 L90.87 57.66 M32.37 87.56 L32.37 34.69 M47.86 73.41 L9.13 55.92 M69.36 33.81 L30.64 16.32 M28.50 32.94 L71.50 17.19 M69.36 86.68 L69.36 33.81 M47.86 68.12 L90.87 52.37 M28.50 85.81 L28.50 32.94 M47.86 68.12 L9.13 50.63 M73.66 32.24 L34.94 14.74 M24.62 31.19 L67.63 15.44 M73.66 85.11 L73.66 32.24 M47.86 62.83 L90.87 47.08 M24.62 84.06 L24.62 31.19 M47.86 62.83 L9.13 45.34 M77.96 30.66 L39.24 13.17 M20.75 29.44 L63.76 13.69 M77.96 83.53 L77.96 30.66 M47.86 57.55 L90.87 41.80 M20.75 82.31 L20.75 29.44 M47.86 57.55 L9.13 40.06 M82.26 29.09 L43.54 11.59 M16.88 27.69 L59.89 11.94 M82.26 81.96 L82.26 29.09 M47.86 52.26 L90.87 36.51 M16.88 80.56 L16.88 27.69 M47.86 52.26 L9.13 34.77 M86.56 27.51 L47.84 10.02 M13.01 25.94 L56.01 10.19 M86.56 80.38 L86.56 27.51 M47.86 46.97 L90.87 31.22 M13.01 78.81 L13.01 25.94 M47.86 46.97 L9.13 29.48 M90.87 25.94 L52.14 8.44 M9.13 24.19 L52.14 8.44 M90.87 78.81 L90.87 25.94 M47.86 41.69 L90.87 25.94 M9.13 77.06 L9.13 24.19 M47.86 41.69 L9.13 24.19" fill="none" stroke="#c3c7ce" stroke-width="0.6" vector-effect="non-scaling-stroke" stroke-linecap="round"/>
+              <polygon points="47.86,94.56 52.16,92.98 52.16,87.69 47.86,89.27" fill="#2453ff"/>
+              <polygon points="47.86,94.56 43.99,92.81 43.99,87.52 47.86,89.27" fill="#1739d1"/>
+              </svg>
+              <canvas class="stage-canvas"></canvas>
+            </div>
+            <div class="scale-rule">
+              <div class="scale-ticks"><i class="major" style="--p:0;--i:0"></i><i style="--p:10.034;--i:1"></i><i style="--p:15.904;--i:2"></i><i style="--p:20.069;--i:3"></i><i class="mid" style="--p:23.299;--i:4"></i><i style="--p:25.938;--i:5"></i><i style="--p:28.17;--i:6"></i><i style="--p:30.103;--i:7"></i><i style="--p:31.808;--i:8"></i><i class="major" style="--p:33.333;--i:9"></i><i style="--p:43.368;--i:10"></i><i style="--p:49.237;--i:11"></i><i style="--p:53.402;--i:12"></i><i class="mid" style="--p:56.632;--i:13"></i><i style="--p:59.272;--i:14"></i><i style="--p:61.503;--i:15"></i><i style="--p:63.436;--i:16"></i><i style="--p:65.141;--i:17"></i><i class="major" style="--p:66.667;--i:18"></i><i style="--p:76.701;--i:19"></i><i style="--p:82.571;--i:20"></i><i style="--p:86.735;--i:21"></i><i class="mid" style="--p:89.966;--i:22"></i><i style="--p:92.605;--i:23"></i><i style="--p:94.837;--i:24"></i><i style="--p:96.77;--i:25"></i><i style="--p:98.475;--i:26"></i><i class="major" style="--p:100;--i:27"></i></div>
+              <span class="scale-index"></span>
+              <ol class="scale-labels">
+                <li style="--p:0">$10K</li>
+                <li style="--p:33.333">$100K</li>
+                <li style="--p:66.667">$1M</li>
+                <li style="--p:100">$10M</li>
+              </ol>
+            </div>
+            <figcaption>
+              <!-- Reads $10,000, then gains a zero at each stage. Written out in full here, which is the finished state. -->
+              <p class="reading"><span class="g">$</span><span class="g">1</span><span class="g z" data-zero="3">0</span><span class="blk" data-block="2"><span class="g z" data-comma>,</span><span class="g z" data-zero="2">0</span><span class="blk" data-block="1"><span class="g z" data-zero="1">0</span><span class="blk" data-block="0"><span class="g" data-ref-zero>0</span><span class="g" data-ref-comma>,</span><span class="g">0</span><span class="g">0</span><span class="g">0</span><span class="reading-unit"> a month</span></span></span></span></p>
+              <p class="stage-note">Illustrative monthly revenue, not a client result.</p>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Case study: the real numbers -->
+      <section class="section section-tint case" id="results">
+        <div class="wrap case-inner">
+          <div class="case-copy">
+            <img class="case-logo" src="/assets/logos/resilia.png" alt="Resilia" width="148" height="28" />
+            <h2 data-grow>From $2M a month to $2M a day.</h2>
+            <p class="section-lede">
+              We took Resilia from $2 million in monthly revenue to $2 million every day:
+              $60 million a month, run on the same system we would build for you.
+            </p>
+            <dl class="stats">
+              <div>
+                <dt>Growth in monthly revenue</dt>
+                <dd><span data-count="30" data-suffix="×">30×</span></dd>
+              </div>
+              <div>
+                <dt>Revenue a month, from $2M</dt>
+                <dd><span data-count="60" data-prefix="$" data-suffix="M">$60M</span></dd>
+              </div>
+              <div>
+                <dt>Revenue a day</dt>
+                <dd><span data-count="2" data-prefix="$" data-suffix="M">$2M</span></dd>
+              </div>
+            </dl>
+          </div>
+
+          <figure class="bars" aria-label="Resilia monthly revenue: $2 million before, $60 million after.">
+            <div class="bar-row">
+              <span class="bar-label">Before</span>
+              <span class="bar-track"><span class="bar bar-before"></span></span>
+              <span class="bar-value">$2M / month</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Now</span>
+              <span class="bar-track"><span class="bar bar-after"></span></span>
+              <span class="bar-value">$60M / month</span>
+            </div>
+            <figcaption>Monthly revenue, drawn to scale.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- The problem, in the founder's words -->
+      <section class="section">
+        <div class="wrap">
+          <h2 data-grow>Every zero breaks something.</h2>
+          <p class="section-lede">Growth usually stalls in one of three places.</p>
+          <div class="three">
+            <div class="stall" data-rule style="--stall:0.38">
+              <h3>Spend goes up, profit goes down.</h3>
+              <p>Every extra dollar on Meta buys less than the last one, and platform ROAS hides it until the bank balance doesn’t.</p>
+            </div>
+            <div class="stall" data-rule style="--stall:0.62">
+              <h3>Ads burn out faster than you can replace them.</h3>
+              <p>A winning ad lasts weeks, not months. Most teams can’t make new angles fast enough to keep scaling.</p>
+            </div>
+            <div class="stall" data-rule style="--stall:0.24">
+              <h3>Customers buy once and disappear.</h3>
+              <p>Without real retention you pay to win the same revenue again every month.</p>
+            </div>
+          </div>
+          <p class="pivot">We fix all three together, because they’re one problem.</p>
+        </div>
+      </section>
+
+      <!-- The AI creative engine -->
+      <section class="section ai" id="ai">
+        <div class="wrap">
+          <p class="ai-kicker">Built in-house</p>
+          <h2 data-grow>Our own AI makes your ads, end to end.</h2>
+          <p class="section-lede">
+            Creative is what scales an ad account, and it is where most brands run dry. So we built an
+            AI tool that automates the whole creative process, from research to finished ads, and we run
+            it for every brand we scale.
+          </p>
+          <ol class="pipe" role="list">
+            <li>
+              <span class="pipe-node" aria-hidden="true"></span>
+              <span class="num">1</span>
+              <h3>Research</h3>
+              <p>Reads your reviews, your competitors’ ads and what is already winning in your category.</p>
+            </li>
+            <li>
+              <span class="pipe-node" aria-hidden="true"></span>
+              <span class="num">2</span>
+              <h3>Angles and scripts</h3>
+              <p>Turns that research into hooks, angles and scripts for every audience you sell to.</p>
+            </li>
+            <li>
+              <span class="pipe-node" aria-hidden="true"></span>
+              <span class="num">3</span>
+              <h3>Production</h3>
+              <p>Generates statics, UGC-style video and variations in every format and size you run.</p>
+            </li>
+            <li>
+              <span class="pipe-node" aria-hidden="true"></span>
+              <span class="num">4</span>
+              <h3>Launch and learn</h3>
+              <p>New ads go live and get tested, and the winners feed the next round of creative.</p>
+            </li>
+          </ol>
+          <div class="formats" aria-hidden="true">
+            <div class="formats-track">
+              <span>Static 1:1</span><span>UGC 9:16</span><span>Story 9:16</span><span>Video 4:5</span><span>Carousel</span><span>Hook variations</span><span>Founder-style video</span><span>Before and after</span><span>Product demo</span><span>Review ads</span>
+              <span>Static 1:1</span><span>UGC 9:16</span><span>Story 9:16</span><span>Video 4:5</span><span>Carousel</span><span>Hook variations</span><span>Founder-style video</span><span>Before and after</span><span>Product demo</span><span>Review ads</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What they get -->
+      <section class="section">
+        <div class="wrap split">
+          <div class="split-head">
+            <h2 data-grow>One team.<br />One number to answer to.</h2>
+            <p class="section-lede">Four jobs that take a brand from thousands a month to millions, run together and measured on one number: profitable revenue.</p>
+          </div>
+          <dl class="services">
+            <div data-rule>
+              <dt>Acquisition</dt>
+              <dd>Meta, TikTok, Google and YouTube, managed against contribution margin, not vanity ROAS.</dd>
+            </div>
+            <div data-rule>
+              <dt>AI-powered creative</dt>
+              <dd>Statics, UGC and video from our in-house AI tool, refreshed every week from what your data says is working.</dd>
+            </div>
+            <div data-rule>
+              <dt>Retention</dt>
+              <dd>Email and SMS flows that turn first orders into second, third and fourth orders.</dd>
+            </div>
+            <div data-rule data-rule-end>
+              <dt>Conversion</dt>
+              <dd>Landing pages, offers and bundles that raise what each visitor you pay for is worth.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- How it works: a real sequence, so it sits on a numbered rule -->
+      <section class="section section-tint">
+        <div class="wrap">
+          <h2 data-grow>How we scale a brand</h2>
+          <div class="steps-wrap">
+            <ol class="steps" role="list">
+              <li class="is-on">
+                <span class="num">1</span>
+                <h3>Free growth audit</h3>
+                <p>We review your ad accounts, store and numbers before the call, then walk you through where revenue is leaking and how to fix it. The plan is yours to keep.</p>
+              </li>
+              <li class="is-on">
+                <span class="num">2</span>
+                <h3>Your proposal</h3>
+                <p>If you want us to run it, you get clear targets for spend, margin and new-customer revenue, with scope and price up front.</p>
+              </li>
+              <li class="is-on">
+                <span class="num">3</span>
+                <h3>Launch and scale</h3>
+                <p>Campaigns, AI-made creative and flows go live. We raise spend step by step, only where it stays profitable.</p>
+              </li>
+            </ol>
+            <span class="steps-fill" aria-hidden="true"></span>
+            <span class="steps-index" aria-hidden="true"></span>
+          </div>
+          <a class="button" href="#book" data-booking-link data-inflow data-cta="steps">Book your free growth audit</a>
+        </div>
+      </section>
+
+      <!-- Objections -->
+      <section class="section">
+        <div class="wrap split">
+          <div class="split-head">
+            <h2 data-grow>Questions founders ask before they book</h2>
+          </div>
+          <div class="faq">
+            <details data-rule>
+              <summary>Who do you work with?</summary>
+              <p>Ecommerce brands with a proven product and steady monthly sales that want to scale into the millions. If you haven’t launched yet, we’re not the right fit.</p>
+            </details>
+            <details data-rule>
+              <summary>What happens on the audit call?</summary>
+              <p>We look at your ad accounts, store and numbers beforehand, then walk you through the biggest opportunities we found. You keep the plan whether or not we work together.</p>
+            </details>
+            <details data-rule>
+              <summary>Is the creative made by AI?</summary>
+              <p>Yes, with people in charge. Our in-house AI tool handles research, scripts and production end to end, so you can test far more ads every week. Our team sets the strategy and decides what runs.</p>
+            </details>
+            <details data-rule>
+              <summary>How much does it cost?</summary>
+              <p>It depends on what you need. If you want us to run the plan, you’ll get a proposal with scope and price up front.</p>
+            </details>
+            <details data-rule data-rule-end>
+              <summary>Do you replace our team or work with it?</summary>
+              <p>Either. We can run growth end to end, or work alongside your in-house team. Either way, one plan covers ads, creative and retention.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final ask: the dark panel scales up to fill the screen -->
+      <section class="closing" id="book">
+        <div class="closing-bg" aria-hidden="true"></div>
+        <div class="wrap closing-inner">
+          <h2 data-grow>See what your brand looks like with another zero.</h2>
+          <p>
+            Book a free 30-minute growth audit. We review your ad accounts, store and numbers first,
+            then show you where your next stage of growth comes from.
+          </p>
+          <!-- Set BOOKING_URL in src/main.js and every booking button on the page uses it. -->
+          <a class="button" href="#book" data-booking-link data-inflow data-cta="closing">Book your free growth audit</a>
+          <p class="microcopy">You keep the plan either way.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <span class="wordmark">moon<span>Scale</span></span>
+        <span class="footer-note">The cube scale in the hero is an illustration. Resilia’s figures are real client results.</span>
+        <span>© 2026 moonScale</span>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

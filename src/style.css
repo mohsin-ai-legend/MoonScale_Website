@@ -1,0 +1,1301 @@
+/*
+  moonScale. White page, one typeface, cobalt blue as the brand colour, deep navy for the
+  two dark sections.
+
+  How motion is layered on:
+  - This stylesheet describes the finished page. Nothing readable is ever hidden here.
+  - html.motion (set in <head> only when the visitor allows motion) gives a few
+    decorations a starting state: hairlines undrawn, bars short, the 3D stage waiting.
+  - Scripts then draw them in. If the scripts never arrive, html.motion is removed
+    and the finished page shows.
+*/
+
+:root {
+  --paper: #ffffff;
+  --tint: #f3f6ff;
+  --ink: #0b1020;
+  --muted: #545d72;
+  --line: #e2e7f2;
+  --tick: #b3bdd6;
+
+  --blue: #2453ff;
+  --blue-dark: #1739d1;
+  --blue-soft: #e4eaff;
+  --navy: #081236;
+  --navy-2: #0f1f57;
+  --sky: #9db6ff;
+  --on-navy: #b7c3e6;
+
+  --font: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --max: 72rem;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+  --nav-h: 4.25rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* In-page links and keyboard focus stop below the sticky nav, never under it */
+html {
+  scroll-padding-top: var(--nav-h);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+p,
+figure,
+dl,
+dd,
+ol,
+ul {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* In-page links move focus to their section; a ring around a whole section would only be noise */
+main:focus,
+.closing:focus {
+  outline: none;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+/* ---------- Buttons: blue is the action colour ---------- */
+.button {
+  display: inline-block;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  padding: 0.95rem 1.6rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -10px rgba(36, 83, 255, 0.55);
+}
+
+.button:hover {
+  background: var(--blue-dark);
+}
+
+.button-small {
+  font-size: 0.9375rem;
+  padding: 0.6rem 1.1rem;
+  box-shadow: none;
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+}
+
+.nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  opacity: 0;
+}
+
+.nav.is-scrolled::after {
+  opacity: 1;
+}
+
+.nav-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--nav-h);
+}
+
+.wordmark {
+  font-weight: 600;
+  font-size: 1.1875rem;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.wordmark span {
+  color: var(--blue);
+}
+
+/* One solid booking button on screen at a time: the nav button stays an outline
+   while a booking button in the page is visible, and fills with blue when none is. */
+html.js .nav .button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+
+html.js .nav .button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+html.js .nav.is-asking .button {
+  color: #fff;
+}
+
+html.js .nav.is-asking .button::before {
+  transform: scaleX(1);
+}
+
+html.js .nav.is-asking .button:hover::before {
+  background: var(--blue-dark);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  padding: clamp(1.75rem, 5vh, 3.5rem) 0 clamp(3rem, 7vh, 4.5rem);
+}
+
+.hero-inner {
+  display: grid;
+  gap: clamp(2.25rem, 6vw, 3rem);
+}
+
+/* One column: copy, then proof, then the stage */
+.hero-copy {
+  display: contents;
+}
+
+.hero-text {
+  order: 1;
+  container-type: inline-size; /* the headline is sized from this column's width */
+}
+
+.proof {
+  order: 2;
+}
+
+.stage {
+  order: 3;
+}
+
+/* Sized so "ecommerce brands" fits its column: three lines at default settings */
+.hero h1 {
+  font-size: clamp(2rem, min(9vw, 8.4vh), 4.25rem);
+  font-size: clamp(2rem, min(11.5cqi, 8.4vh), 4.25rem);
+  line-height: 1.03;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+/* Keeps "ecommerce brands" together and gives "to millions." its own line.
+   inline-block, not nowrap, so enlarged or re-spaced text can still wrap instead of being cut off. */
+.nb {
+  display: inline-block;
+}
+
+.lede {
+  margin-top: 1.5rem;
+  max-width: 31rem;
+  font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.hero .button {
+  margin-top: 2.25rem;
+}
+
+.microcopy {
+  margin-top: 0.9rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+/* Proof: the headline number and the logos */
+.proof-stat {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.proof-stat strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.proof-stat b {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.logos {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem clamp(1.25rem, 2.6vw, 2rem);
+}
+
+.logos img {
+  height: 22px;
+  width: auto;
+  filter: grayscale(1) contrast(1.1);
+  opacity: 0.72;
+}
+
+.logos img[alt="Happy Mammoth"] {
+  height: 40px;
+}
+
+.logos li:hover img {
+  filter: none;
+  opacity: 1;
+}
+
+.logo-text {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--muted);
+}
+
+/* The stage: the 3D block, the rule that reads it, and the figure */
+.stage {
+  width: min(100%, 34rem);
+  justify-self: center;
+  container-type: inline-size; /* the figure is sized from the stage, so it never overhangs it */
+}
+
+.stage-view {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+/* A soft blue floor light under the block */
+.stage-view::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 6%;
+  height: 34%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(36, 83, 255, 0.12), rgba(36, 83, 255, 0));
+}
+
+.stage-poster,
+.stage-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.stage-canvas {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage.is-live .stage-canvas {
+  opacity: 1;
+}
+
+.scale-rule {
+  position: relative;
+  height: 3.6rem;
+}
+
+.scale-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.scale-ticks i {
+  position: absolute;
+  left: calc(var(--p) * 1%);
+  bottom: 0;
+  width: 1px;
+  height: 6px;
+  background: var(--tick);
+  transform-origin: 50% 100%;
+}
+
+.scale-ticks i.mid {
+  height: 9px;
+}
+
+.scale-ticks i.major {
+  height: 14px;
+  background: var(--blue);
+}
+
+.scale-ticks i:last-child {
+  margin-left: -1px;
+}
+
+/* The index marks the current reading. It rests on $10M in the finished state. */
+.scale-index {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 1px;
+  height: 26px;
+  margin-left: -1px;
+  background: var(--blue);
+}
+
+.scale-index::before {
+  content: "";
+  position: absolute;
+  left: -3.5px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--blue);
+}
+
+.scale-labels {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(26px + 0.55rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.scale-labels li {
+  position: absolute;
+  left: calc(var(--p) * 1%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.scale-labels li:first-child {
+  transform: none;
+}
+
+.scale-labels li:last-child {
+  transform: translateX(-100%);
+}
+
+/* The figure. Only four round numbers ever show: each stage of the block adds a zero. */
+.reading {
+  margin-top: 0.15rem;
+  color: var(--blue);
+  font-size: clamp(2.25rem, 4.4vw, 3.5rem);
+  font-size: clamp(1.5rem, calc((100cqi - 4.4rem) / 5.6), 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reading .g,
+.reading .blk {
+  display: inline-block;
+}
+
+.reading .z {
+  transform-origin: 50% 85%;
+}
+
+.reading-unit {
+  margin-left: 0.35em;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.stage-note {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ---------- Sections ---------- */
+.section {
+  padding: clamp(5rem, 11vw, 8rem) 0;
+}
+
+.section-tint {
+  background: var(--tint);
+}
+
+.section h2 {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  max-width: 20ch;
+}
+
+.section-lede {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+  color: var(--muted);
+}
+
+/* Hairlines that are ruled in from the left */
+[data-rule] {
+  position: relative;
+}
+
+[data-rule]::before,
+[data-rule-end]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  transform-origin: 0 50%;
+}
+
+[data-rule]::before {
+  top: 0;
+}
+
+[data-rule-end]::after {
+  bottom: 0;
+}
+
+/* ---------- Case study ---------- */
+.case-inner {
+  display: grid;
+  gap: 3rem clamp(3rem, 7vw, 6rem);
+  align-items: center;
+}
+
+.case-logo {
+  height: 28px;
+  width: auto;
+  margin-bottom: 1.75rem;
+}
+
+.case h2 {
+  max-width: 14ch;
+}
+
+.stats {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 1.5rem clamp(1.75rem, 4vw, 3rem);
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.stats dt {
+  margin-top: 0.35rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+  max-width: 11rem;
+  line-height: 1.4;
+}
+
+.stats dd {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Two bars drawn to the same scale: $2M against $60M */
+.bars {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  align-items: center;
+}
+
+.bar-row + .bar-row {
+  margin-top: 1.5rem;
+}
+
+.bar-label {
+  grid-row: 1 / span 2;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.bar-track {
+  display: block;
+  height: 2.75rem;
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  transform-origin: 0 50%;
+}
+
+.bar-before {
+  width: calc(100% / 30);
+  min-width: 6px;
+  background: var(--tick);
+}
+
+.bar-after {
+  width: 100%;
+  background: linear-gradient(90deg, var(--blue-dark), var(--blue) 60%, #4d74ff);
+}
+
+.bar-value {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bars figcaption {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ---------- Pain points: three blue lines stall, then run on together ---------- */
+.three {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.stall {
+  padding-top: 1.5rem;
+}
+
+.stall::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--blue);
+  transform-origin: 0 50%;
+}
+
+.three p,
+.steps p,
+.services dd,
+.faq p {
+  color: var(--muted);
+}
+
+.three h3 {
+  margin-bottom: 0.6rem;
+}
+
+.pivot {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- AI creative engine (navy) ---------- */
+.ai {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgba(36, 83, 255, 0.35), rgba(36, 83, 255, 0)),
+    var(--navy);
+  color: #fff;
+}
+
+.ai-kicker {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgba(157, 182, 255, 0.4);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sky);
+}
+
+.ai h2 {
+  max-width: 16ch;
+}
+
+.ai .section-lede {
+  color: var(--on-navy);
+  max-width: 38rem;
+}
+
+.pipe {
+  position: relative;
+  list-style: none;
+  margin: clamp(3rem, 6vw, 4.5rem) 0 0;
+  padding: 2.25rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+}
+
+/* The rail the stages sit on; the bright part fills as you scroll */
+.pipe::before,
+.pipe::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.pipe::before {
+  background: rgba(157, 182, 255, 0.22);
+}
+
+.pipe::after {
+  background: linear-gradient(90deg, var(--blue), var(--sky));
+  transform-origin: 0 50%;
+  transform: scaleX(var(--fill, 1));
+}
+
+.pipe li {
+  position: relative;
+}
+
+.pipe-node {
+  position: absolute;
+  left: 0;
+  top: calc(-2.25rem - 6px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 4px var(--navy), 0 0 18px 2px rgba(77, 116, 255, 0.8);
+}
+
+.pipe .num {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sky);
+  font-variant-numeric: tabular-nums;
+}
+
+.pipe h3 {
+  margin-bottom: 0.5rem;
+}
+
+.pipe p {
+  color: var(--on-navy);
+}
+
+/* A slow belt of the formats the tool produces */
+.formats {
+  margin-top: clamp(3rem, 6vw, 4rem);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.formats-track {
+  display: flex;
+  gap: 0.75rem;
+  width: max-content;
+}
+
+.formats-track span {
+  padding: 0.55rem 1rem;
+  border: 1px solid rgba(157, 182, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(36, 83, 255, 0.12);
+  font-size: 0.9375rem;
+  color: #dce4ff;
+  white-space: nowrap;
+}
+
+/* ---------- Services ---------- */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 3rem clamp(3rem, 7vw, 6rem);
+  align-items: start;
+}
+
+.services > div {
+  padding: 1.4rem 0;
+}
+
+.services dt {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* ---------- Steps: three numbered marks on one rule ---------- */
+.steps-wrap {
+  position: relative;
+  margin: clamp(2.5rem, 5vw, 3.5rem) 0 3rem;
+}
+
+.steps-wrap::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: #cdd5ea;
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 1.6rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.steps li {
+  position: relative;
+}
+
+.steps li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1.6rem;
+  width: 1px;
+  height: 10px;
+  background: var(--blue);
+}
+
+.steps .num {
+  display: block;
+  margin-bottom: 0.9rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+  transform-origin: 0 0;
+}
+
+.steps h3 {
+  margin-bottom: 0.5rem;
+}
+
+.steps-fill {
+  position: absolute;
+  left: 0;
+  top: -0.5px;
+  width: var(--reach, 0px);
+  height: 2px;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.steps-index {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--blue);
+}
+
+/* ---------- FAQ ---------- */
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.35rem 2.5rem 1.35rem 0;
+  font-weight: 500;
+  position: relative;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A plus whose upright folds away to leave a minus */
+.faq summary::before,
+.faq summary::after {
+  content: "";
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--blue);
+}
+
+.faq summary::after {
+  transform: rotate(90deg);
+}
+
+.faq details[open] summary::after {
+  transform: rotate(90deg) scaleX(0);
+}
+
+.faq details p {
+  padding-bottom: 1.4rem;
+  max-width: 34rem;
+}
+
+/* ---------- Closing: a navy panel that scales up to fill the screen ---------- */
+.closing {
+  position: relative;
+  color: #fff;
+  padding: clamp(5.5rem, 12vw, 9rem) 0;
+  text-align: center;
+}
+
+.closing-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(50rem 26rem at 50% 120%, rgba(36, 83, 255, 0.55), rgba(36, 83, 255, 0)),
+    var(--navy);
+}
+
+.closing-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.closing h2 {
+  font-size: clamp(2.2rem, 5vw, 3.75rem);
+  max-width: 18ch;
+}
+
+.closing-inner > p:not(.microcopy) {
+  margin: 1.25rem 0 2.25rem;
+  color: var(--on-navy);
+  max-width: 34rem;
+}
+
+.closing .microcopy {
+  color: var(--on-navy);
+}
+
+.closing .button {
+  box-shadow: 0 10px 30px -8px rgba(36, 83, 255, 0.8);
+}
+
+.closing .button:focus-visible {
+  outline-color: #fff;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  padding: 2rem 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 2rem;
+}
+
+.footer .wordmark {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.footer-note {
+  font-size: 0.875rem;
+}
+
+/* ---------- Wider screens ---------- */
+@media (min-width: 960px) {
+  .hero {
+    min-height: calc(100svh - var(--nav-h));
+    display: grid;
+    align-items: center;
+  }
+
+  .hero-inner {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: clamp(2rem, 4.5vw, 4.5rem);
+    align-items: center;
+  }
+
+  /* Copy and proof stack in the left column */
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 5vh, 3rem);
+  }
+
+  .stage {
+    width: min(100%, 34rem, max(16rem, calc(100svh - 17rem)));
+    justify-self: end;
+  }
+
+  .case-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  /* The heading holds still while its list scrolls past */
+  .split-head {
+    position: sticky;
+    top: calc(var(--nav-h) + 2rem);
+  }
+}
+
+/* Short, narrow windows (phones held sideways): keep the stage within the screen height */
+@media (max-width: 959.98px) and (max-height: 639.98px) {
+  .stage {
+    width: min(100%, 34rem, max(12rem, calc(100svh - 13rem)));
+  }
+}
+
+/* ---------- Narrower screens ---------- */
+@media (max-width: 860px) {
+  .three,
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .three {
+    gap: 2rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .stats dd {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  /* The AI pipeline and the steps rule run down the left edge */
+  .pipe {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    padding: 0 0 0 2.25rem;
+  }
+
+  .pipe::before,
+  .pipe::after {
+    right: auto;
+    bottom: 0;
+    width: 2px;
+    height: auto;
+  }
+
+  .pipe::after {
+    background: linear-gradient(180deg, var(--blue), var(--sky));
+    transform-origin: 50% 0;
+    transform: scaleY(var(--fill, 1));
+  }
+
+  .pipe-node {
+    left: calc(-2.25rem - 6px);
+    top: 0.35rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 0 0 1.75rem;
+  }
+
+  .steps-wrap::before {
+    right: auto;
+    bottom: 0;
+    width: 1px;
+    height: auto;
+  }
+
+  .steps li::before {
+    left: -1.75rem;
+    top: 0.45rem;
+    width: 10px;
+    height: 1px;
+  }
+
+  .steps-fill {
+    left: -0.5px;
+    top: 0.45rem;
+    width: 2px;
+    height: var(--reach, 0px);
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+  }
+
+  .steps-index {
+    top: calc(0.45rem - 4px);
+  }
+}
+
+/* ---------- Windows contrast themes: keep the shapes that carry meaning ---------- */
+@media (forced-colors: active) {
+  .button {
+    border: 1px solid ButtonText;
+  }
+
+  .faq summary::before,
+  .faq summary::after,
+  [data-rule]::before,
+  [data-rule-end]::after,
+  .bar {
+    background: CanvasText;
+  }
+}
+
+/* ---------- Motion: starting states and transitions ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .button {
+    transition: background-color 0.15s ease, transform 0.2s var(--ease);
+  }
+
+  .button:active {
+    transform: scale(0.98);
+  }
+
+  @media (hover: hover) {
+    .button:hover {
+      transform: scale(1.03);
+    }
+
+    .button:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .logos img {
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+
+  .nav::after {
+    transition: opacity 0.2s ease;
+  }
+
+  html.js .nav .button {
+    transition: color 0.2s ease 0.08s, transform 0.2s var(--ease);
+  }
+
+  html.js .nav .button::before {
+    transition: transform 0.35s var(--ease), background-color 0.15s ease;
+  }
+
+  .faq summary::after {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .faq details[open] > p {
+    animation: answer 0.3s var(--ease);
+  }
+
+  /* The format belt drifts slowly while the AI section is on screen */
+  html.motion .ai.is-live .formats-track {
+    animation: belt 40s linear infinite;
+  }
+
+  /* The stage waits for the 3D scene; the drawing is only the fallback */
+  html.motion .stage:not(.is-fallback) .stage-poster {
+    visibility: hidden;
+  }
+
+  html.motion .stage-canvas {
+    transition: opacity 0.4s ease;
+  }
+
+  /* The figure waits for the script to set its first state, so no wrong number ever flashes */
+  html.motion .stage:not(.is-fallback) .reading:not(.is-set) {
+    visibility: hidden;
+  }
+
+  html.motion .stage:not(.is-fallback) .scale-index {
+    left: 0;
+    margin-left: 0;
+  }
+
+  html.motion .stage:not(.is-fallback) .scale-labels li {
+    color: var(--muted);
+    transition: color 0.3s ease;
+  }
+
+  html.motion .stage:not(.is-fallback) .scale-labels li.is-on {
+    color: var(--ink);
+  }
+
+  /* Ticks stand up from the baseline at first paint */
+  html.motion .scale-ticks i {
+    animation: tick-rise 0.35s var(--ease) backwards;
+    animation-delay: calc(120ms + var(--i) * 14ms);
+  }
+
+  /* Hairlines are ruled in when they come into view */
+  html.motion [data-rule]::before,
+  html.motion [data-rule-end]::after {
+    transform: scaleX(0);
+    transition: transform 0.9s var(--ease);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  html.motion [data-rule].is-in::before,
+  html.motion [data-rule-end].is-in::after {
+    transform: scaleX(1);
+  }
+
+  /* Each blue line sets off and stalls short; the fix runs all three on together */
+  html.motion .stall::after {
+    transform: scaleX(0);
+    transition: transform 1.1s var(--ease);
+    transition-delay: calc(var(--i, 0) * 120ms + 200ms);
+  }
+
+  html.motion .stall.is-stalled::after {
+    transform: scaleX(var(--stall));
+  }
+
+  html.motion .three.is-solved .stall::after {
+    transform: scaleX(1);
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  /* AI pipeline: nodes light up as the rail reaches them */
+  html.motion .pipe.is-live .pipe-node {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.4s var(--ease);
+  }
+
+  html.motion .pipe.is-live li:not(.is-on) .pipe-node {
+    background: var(--navy-2);
+    box-shadow: 0 0 0 4px var(--navy), inset 0 0 0 1px rgba(157, 182, 255, 0.45);
+    transform: scale(0.8);
+  }
+
+  /* Steps: each numeral and its tick wake up as the index reaches them. The text is never dimmed. */
+  html.motion .steps.is-live .num {
+    transition: color 0.3s ease, transform 0.4s var(--ease);
+  }
+
+  html.motion .steps.is-live li::before {
+    transition: background-color 0.3s ease;
+  }
+
+  html.motion .steps.is-live li:not(.is-on) .num {
+    color: var(--muted);
+    transform: scale(0.8);
+  }
+
+  html.motion .steps.is-live li:not(.is-on)::before {
+    background: var(--tick);
+  }
+}
+
+@keyframes answer {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes tick-rise {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes belt {
+  to {
+    transform: translateX(-50%);
+  }
+}
