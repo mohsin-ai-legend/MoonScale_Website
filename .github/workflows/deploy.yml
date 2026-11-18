@@ -102,6 +102,15 @@ jobs:
       - name: Check the live site
         run: |
           URL="${{ steps.deploy.outputs.url }}"
-          curl -fsS "$URL/healthz"
-          curl -fsS "$URL/" | grep -q "moonScale"
-          echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
+          READY=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.conditions[0].status)')
+          test "$READY" = "True" || { echo "service not ready"; exit 1; }
+          CODE=$(curl -s -o page.html -w '%{http_code}' "$URL/")
+          if [ "$CODE" = "200" ]; then
+            grep -q "moonScale" page.html
+            echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$CODE" = "403" ]; then
+            echo "::warning::Deployed and ready, but $URL is private. Public access (allUsers) is blocked by an organization policy."
+            echo "Deployed, but private: $URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "unexpected status $CODE"; exit 1
+          fi
