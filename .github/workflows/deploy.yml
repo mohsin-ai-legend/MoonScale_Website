@@ -1,0 +1,107 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SERVICE: moonscale-site
+  REPOSITORY: moonscale
+  IMAGE: moonscale-site
+
+jobs:
+  check:
+    name: Check and build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JavaScript syntax
+        run: |
+          for f in src/*.js; do node --check "$f"; done
+
+      - name: Required files and links
+        run: |
+          test -f index.html
+          # every local file the page points at must exist
+          grep -oE '(src|href)="/[^"#]+"' index.html | sed -E 's/^(src|href)="\/([^"]+)"$/\2/' | while read -r p; do
+            test -f "$p" || { echo "missing: $p"; exit 1; }
+          done
+
+      - name: Build image
+        run: docker build -t "$IMAGE:test" .
+
+      - name: Smoke test image
+        run: |
+          docker run -d --name site -p 8080:8080 "$IMAGE:test"
+          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
+          curl -fsS localhost:8080/ | grep -q "moonScale"
+          curl -fsSI localhost:8080/src/main.js | grep -qi "200"
+          curl -fsSI localhost:8080/assets/logos/resilia.png | grep -qi "200"
+          docker logs site
+
+  deploy:
+    name: Deploy to Cloud Run
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: ${{ secrets.GCP_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push image
+        run: |
+          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+          IMG="$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${GITHUB_SHA}"
+          docker build -t "$IMG" .
+          docker push "$IMG"
+          echo "IMG=$IMG" >> "$GITHUB_ENV"
+
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMG }}
+          flags: >-
+            --allow-unauthenticated
+            --service-account=moonscale-runtime@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --port=8080
+            --cpu=1
+            --memory=256Mi
+            --min-instances=0
+            --max-instances=3
+            --concurrency=200
+
+      - name: Check the live site
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          curl -fsS "$URL/healthz"
+          curl -fsS "$URL/" | grep -q "moonScale"
+          echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
