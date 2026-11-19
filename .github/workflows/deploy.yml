@@ -80,9 +80,11 @@ jobs:
 
       - name: Check the live site
         run: |
-          for URL in https://moonscale.web.app; do
-            curl -fsS "$URL/" | grep -q "moonScale"
-            curl -fsSI "$URL/src/main.js" | grep -qi "200"
-            curl -fsSI "$URL/assets/logos/resilia.png" | grep -qi "200"
-            echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
+          URL=https://moonscale.web.app
+          curl -fsS "$URL/" -o page.html
+          grep -q "moonScale" page.html
+          for p in /src/main.js /src/style.css /assets/logos/resilia.png; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$URL$p")
+            test "$code" = "200" || { echo "$p returned $code"; exit 1; }
           done
+          echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
