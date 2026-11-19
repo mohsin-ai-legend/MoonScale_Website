@@ -11,11 +11,6 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  SERVICE: moonscale-site
-  REPOSITORY: moonscale
-  IMAGE: moonscale-site
-
 jobs:
   check:
     name: Check and build
@@ -41,20 +36,20 @@ jobs:
             test -f "$p" || { echo "missing: $p"; exit 1; }
           done
 
-      - name: Build image
-        run: docker build -t "$IMAGE:test" .
-
-      - name: Smoke test image
+      - name: Assemble site
         run: |
-          docker run -d --name site -p 8080:8080 "$IMAGE:test"
-          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
-          curl -fsS localhost:8080/ | grep -q "moonScale"
-          curl -fsSI localhost:8080/src/main.js | grep -qi "200"
-          curl -fsSI localhost:8080/assets/logos/resilia.png | grep -qi "200"
-          docker logs site
+          mkdir -p public
+          cp index.html public/
+          cp -R src assets public/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: public
+          retention-days: 7
 
   deploy:
-    name: Deploy to Cloud Run
+    name: Deploy to Firebase Hosting
     needs: check
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -63,54 +58,31 @@ jobs:
       id-token: write
     env:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      REGION: ${{ secrets.GCP_REGION }}
     steps:
       - uses: actions/checkout@v4
 
-      - id: auth
-        uses: google-github-actions/auth@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: public
+
+      - uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOYER_SA }}
 
-      - uses: google-github-actions/setup-gcloud@v2
-
-      - name: Build and push image
-        run: |
-          gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
-          IMG="$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:${GITHUB_SHA}"
-          docker build -t "$IMG" .
-          docker push "$IMG"
-          echo "IMG=$IMG" >> "$GITHUB_ENV"
-
-      - id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          image: ${{ env.IMG }}
-          flags: >-
-            --allow-unauthenticated
-            --service-account=moonscale-runtime@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-            --port=8080
-            --cpu=1
-            --memory=256Mi
-            --min-instances=0
-            --max-instances=3
-            --concurrency=200
+      - name: Deploy
+        run: npx --yes firebase-tools@14 deploy --only hosting:moonscale --project "$PROJECT_ID" --non-interactive
 
       - name: Check the live site
         run: |
-          URL="${{ steps.deploy.outputs.url }}"
-          READY=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.conditions[0].status)')
-          test "$READY" = "True" || { echo "service not ready"; exit 1; }
-          CODE=$(curl -s -o page.html -w '%{http_code}' "$URL/")
-          if [ "$CODE" = "200" ]; then
-            grep -q "moonScale" page.html
+          for URL in https://moonscale.web.app; do
+            curl -fsS "$URL/" | grep -q "moonScale"
+            curl -fsSI "$URL/src/main.js" | grep -qi "200"
+            curl -fsSI "$URL/assets/logos/resilia.png" | grep -qi "200"
             echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"
-          elif [ "$CODE" = "403" ]; then
-            echo "::warning::Deployed and ready, but $URL is private. Public access (allUsers) is blocked by an organization policy."
-            echo "Deployed, but private: $URL" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "unexpected status $CODE"; exit 1
-          fi
+          done
